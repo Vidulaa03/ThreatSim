@@ -788,6 +788,7 @@ function resetProfile(){
 
 function selectLevel(id){
     if(id > profile.unlockedLevel) return;
+    closeDrawer();
     profile.activeLevel = id;
     profile.viewFinal = false;
     activeStage = 0;
@@ -954,6 +955,25 @@ function renderLogin(){
     `;
 }
 
+function toggleDrawer(){
+    const sidebar = document.getElementById("mainSidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+    if(!sidebar || !overlay) return;
+    if(sidebar.classList.contains("open")){
+        closeDrawer();
+    } else {
+        sidebar.classList.add("open");
+        overlay.classList.add("active");
+    }
+}
+
+function closeDrawer(){
+    const sidebar = document.getElementById("mainSidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+    if(sidebar) sidebar.classList.remove("open");
+    if(overlay) overlay.classList.remove("active");
+}
+
 function renderApp(){
     if(!profile.name){
         renderLogin();
@@ -963,10 +983,14 @@ function renderApp(){
     const threat = threatLabel();
     document.getElementById("root").innerHTML = `
         <div class="app">
-            <aside class="sidebar">
-                <div class="brand">
-                    <h1>ThreatSim</h1>
-                    <p>Interactive Cybercrime Awareness Simulator</p>
+            <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeDrawer()"></div>
+            <aside class="sidebar" id="mainSidebar">
+                <div class="sidebar-header">
+                    <div class="brand">
+                        <h1>ThreatSim</h1>
+                        <p>Interactive Cybercrime Awareness Simulator</p>
+                    </div>
+                    <button type="button" class="drawer-close-btn" onclick="closeDrawer()">✕</button>
                 </div>
 
                 <div class="profile-card">
@@ -989,12 +1013,17 @@ function renderApp(){
                 </div>
 
                 <div class="sidebar-actions">
-                    <button class="ghost-btn" onclick="showFinal()">Final Report</button>
-                    <button class="danger-btn" onclick="resetProfile()">Reset Progress</button>
+                    <button type="button" class="ghost-btn" onclick="showFinal()">Final Report</button>
+                    <button type="button" class="danger-btn" onclick="resetProfile()">Reset Progress</button>
                 </div>
             </aside>
 
-            <main class="main">
+            <main class="main" id="mainContent">
+                <div class="mobile-topbar">
+                    <button type="button" class="hamburger-btn" onclick="toggleDrawer()">☰</button>
+                    <span class="mobile-brand">ThreatSim</span>
+                    <div class="mobile-score-pill" id="mobileScorePill">⚡ ${profile.score}</div>
+                </div>
                 ${profile.viewFinal ? finalReportMarkup() : simulationMarkup()}
             </main>
         </div>
@@ -1005,8 +1034,8 @@ function levelButton(level){
     const completed = profile.completedLevels.includes(level.id);
     const locked = level.id > profile.unlockedLevel;
     const active = level.id === profile.activeLevel;
-    const icon = completed ? "DONE" : locked ? "LOCK" : "OPEN";
-    return `<button class="level-item ${completed ? "completed" : ""} ${locked ? "locked" : ""} ${active ? "active" : ""}" onclick="selectLevel(${level.id})">
+    const icon = completed ? "✅" : locked ? "🔒" : "🔓";
+    return `<button type="button" class="level-item ${completed ? "completed" : ""} ${locked ? "locked" : ""} ${active ? "active" : ""}" onclick="selectLevel(${level.id})">
         ${icon} Level ${level.id}: ${level.state}
         <span>${level.title}</span>
     </button>`;
@@ -1028,7 +1057,7 @@ function simulationMarkup(){
             <div class="status-pill">Level ${level.id} / ${levels.length}</div>
         </div>
 
-        <section class="sim-card">
+        <section class="sim-card stage-fade">
             <div class="case-header">
                 <div>
                     <h3>${level.state}: ${level.title}</h3>
@@ -1058,7 +1087,7 @@ function stageMarkup(stage){
         <div class="interface-wrap">${stage.ui}</div>
         <p class="stage-text">${stage.text}</p>
         <div class="choices">
-            ${stage.choices.map((item, index) => `<button class="choice" onclick="chooseAction(${index})">${item.text}</button>`).join("")}
+            ${stage.choices.map((item, index) => `<button type="button" class="choice" onclick="chooseAction(${index})">${item.text}</button>`).join("")}
         </div>
         <div id="feedback" class="feedback"></div>
     `;
@@ -1093,7 +1122,7 @@ function chooseAction(index){
         </div>
         <p>${selected.result}</p>
         <div class="nav-actions">
-            <button class="primary-btn" onclick="nextStage()">Continue</button>
+            <button type="button" class="primary-btn" onclick="nextStage()">Continue</button>
         </div>
     `;
     updateSidebarStats();
@@ -1200,6 +1229,7 @@ function updateSidebarStats(){
     const scoreEl = document.querySelector(".score-value");
     const fill = document.querySelector(".meter-fill");
     const status = document.querySelector(".meter-status");
+    const mobilePill = document.getElementById("mobileScorePill");
     if(scoreEl) scoreEl.textContent = profile.score;
     if(fill){
         fill.style.width = threat.width;
@@ -1209,6 +1239,7 @@ function updateSidebarStats(){
         status.textContent = threat.label;
         status.style.color = threat.color;
     }
+    if(mobilePill) mobilePill.textContent = `⚡ ${profile.score}`;
 }
 
 const achievementDefinitions = [
@@ -1298,6 +1329,8 @@ function nextStage(){
         activeStage++;
         feedbackLocked = false;
         renderApp();
+        const mainEl = document.getElementById("mainContent");
+        if(mainEl) mainEl.scrollTo({top:0, behavior:"smooth"});
         window.scrollTo({top:0, behavior:"smooth"});
     }
 }
@@ -1346,7 +1379,7 @@ function learningMarkup(level){
         ${incidentChain}
         ${realCaseMarkup(level.realCase)}
         <div class="nav-actions">
-            <button class="primary-btn" onclick="completeLevel()">Continue</button>
+            <button type="button" class="primary-btn" onclick="completeLevel()">Continue</button>
         </div>
     `;
 }
@@ -1379,6 +1412,8 @@ function completeLevel(){
         saveProfile();
         renderApp();
         showRetryNotice();
+        const mainEl = document.getElementById("mainContent");
+        if(mainEl) mainEl.scrollTo({top:0, behavior:"smooth"});
         window.scrollTo({top:0, behavior:"smooth"});
         return;
     }
@@ -1398,6 +1433,8 @@ function completeLevel(){
     checkAchievements();
     renderApp();
     showNextAchievement();
+    const mainEl = document.getElementById("mainContent");
+    if(mainEl) mainEl.scrollTo({top:0, behavior:"smooth"});
     window.scrollTo({top:0, behavior:"smooth"});
 }
 

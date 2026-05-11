@@ -999,6 +999,120 @@ button{
     line-height:1.5;
 }
 
+/* ---- MOBILE DRAWER SYSTEM ---- */
+
+.mobile-topbar{
+    display:none;
+    align-items:center;
+    gap:12px;
+    padding:13px 16px;
+    background:rgba(5,8,18,0.98);
+    border-bottom:1px solid var(--line);
+    position:sticky;
+    top:0;
+    z-index:50;
+    backdrop-filter:blur(16px);
+    -webkit-backdrop-filter:blur(16px);
+}
+
+.hamburger-btn{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    width:44px;
+    height:44px;
+    color:var(--cyan);
+    font-size:1.35rem;
+    cursor:pointer;
+    display:grid;
+    place-items:center;
+    transition:0.2s;
+    flex-shrink:0;
+}
+
+.hamburger-btn:hover{
+    background:rgba(0,255,213,0.12);
+    border-color:rgba(0,255,213,0.45);
+}
+
+.mobile-brand{
+    flex:1;
+    font-size:1.25rem;
+    font-weight:900;
+    color:var(--cyan);
+    letter-spacing:0.03em;
+}
+
+.mobile-score-pill{
+    background:var(--panel);
+    border:1px solid rgba(0,255,213,0.28);
+    border-radius:100px;
+    padding:7px 14px;
+    font-size:0.85rem;
+    font-weight:900;
+    color:var(--cyan);
+    white-space:nowrap;
+    transition:0.2s;
+}
+
+.sidebar-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,2,10,0.75);
+    z-index:150;
+    backdrop-filter:blur(3px);
+    -webkit-backdrop-filter:blur(3px);
+}
+
+.sidebar-overlay.active{
+    display:block;
+    animation:fadeInOverlay 0.22s ease;
+}
+
+@keyframes fadeInOverlay{
+    from{opacity:0;}
+    to{opacity:1;}
+}
+
+.sidebar-header{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+}
+
+.drawer-close-btn{
+    display:none;
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:8px;
+    width:36px;
+    height:36px;
+    color:var(--muted);
+    font-size:1rem;
+    cursor:pointer;
+    place-items:center;
+    flex-shrink:0;
+    transition:0.2s;
+    margin-top:4px;
+}
+
+.drawer-close-btn:hover{
+    color:var(--text);
+    border-color:rgba(255,255,255,0.2);
+}
+
+/* Stage fade transition */
+.stage-fade{
+    animation:stageFadeIn 0.3s ease;
+}
+
+@keyframes stageFadeIn{
+    from{opacity:0; transform:translateY(10px);}
+    to{opacity:1; transform:translateY(0);}
+}
+
 @keyframes pulseAlert{
     0%,100%{box-shadow:0 0 0 rgba(255,77,109,0);}
     50%{box-shadow:0 0 22px rgba(255,77,109,0.16);}
@@ -1016,20 +1130,73 @@ button{
 }
 
 @media(max-width:1050px){
+    /* App: locked container, sidebar is overlay drawer */
     .app{
         display:block;
+        height:100vh;
+        overflow:hidden;
+        position:relative;
     }
 
+    /* Sidebar: fixed drawer, hidden off-screen by default */
     .sidebar{
-        width:100%;
-        min-height:auto;
-        position:static;
+        width:300px;
+        min-height:100vh;
+        position:fixed;
+        top:0;
+        left:-320px;
+        height:100vh;
+        z-index:200;
+        overflow-y:auto;
+        transition:left 0.32s cubic-bezier(0.4,0,0.2,1),box-shadow 0.32s ease;
+        border-right:1px solid var(--line);
+        box-shadow:none;
     }
 
+    .sidebar.open{
+        left:0;
+        box-shadow:16px 0 56px rgba(0,0,0,0.75);
+    }
+
+    /* Show the X close button inside drawer on mobile */
+    .drawer-close-btn{
+        display:grid;
+    }
+
+    /* Main: full-height scrollable content area */
+    .main{
+        height:100vh;
+        overflow-y:auto;
+        -webkit-overflow-scrolling:touch;
+        padding:0 0 40px 0;
+    }
+
+    /* Show mobile topbar */
+    .mobile-topbar{
+        display:flex;
+    }
+
+    /* Hide desktop topbar — mobile topbar + case-header carry that context */
+    .topbar{
+        display:none;
+    }
+
+    /* Give sim-card breathing room */
+    .sim-card{
+        margin:12px;
+    }
+
+    .final-view,.locked-view{
+        margin:12px;
+        padding:24px 18px;
+    }
+
+    /* Level list: single column inside drawer */
     .level-list{
-        grid-template-columns:repeat(2, 1fr);
+        grid-template-columns:1fr;
     }
 
+    /* Choices and grids: single column */
     .choices,.learn-grid{
         grid-template-columns:1fr;
     }
@@ -1041,11 +1208,7 @@ button{
 }
 
 @media(max-width:680px){
-    .main{
-        padding:16px;
-    }
-
-    .topbar,.case-header{
+    .case-header{
         display:block;
     }
 
@@ -1070,5 +1233,13 @@ button{
     .stage-nav{
         grid-template-columns:repeat(5, 1fr);
         padding:14px;
+    }
+
+    .stage-body{
+        padding:16px;
+    }
+
+    .case-header{
+        padding:16px;
     }
 }
