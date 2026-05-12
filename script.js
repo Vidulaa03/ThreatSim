@@ -1013,6 +1013,7 @@ function renderApp(){
                 </div>
 
                 <div class="sidebar-actions">
+                    
                     <button type="button" class="ghost-btn" onclick="showFinal()">Final Report</button>
                     <button type="button" class="danger-btn" onclick="resetProfile()">Reset Progress</button>
                 </div>
