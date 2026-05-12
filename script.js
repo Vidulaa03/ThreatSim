@@ -777,13 +777,15 @@ function startProfile(event){
     profile = {...defaultProfile, name};
     saveProfile();
     renderApp();
+    initSentinel();
+    setTimeout(() => showMentorToast(`Welcome, ${name}. I am Sentinel — your cyber analyst. I will review each decision you make.`, "neutral"), 1200);
 }
 
 function resetProfile(){
     localStorage.removeItem(STORAGE_KEY);
     profile = {...defaultProfile};
     activeStage = 0;
-    renderApp();
+    renderLogin();
 }
 
 function selectLevel(id){
@@ -950,20 +952,6 @@ function getLevelIncidentNotes(levelId){
     return notes;
 }
 
-function renderLogin(){
-    document.getElementById("root").innerHTML = `
-        <div class="login-screen">
-            <form class="login-card" onsubmit="startProfile(event)">
-                <h1>ThreatSim</h1>
-                <p>Enter the simulator as a cyber-awareness trainee. Your score, unlocked levels, and completed cases will be saved in this browser.</p>
-                <label class="field-label" for="playerName">Player name</label>
-                <input class="name-input" id="playerName" maxlength="24" placeholder="Enter your name" autocomplete="off">
-                <button class="primary-btn" type="submit">Start Simulation</button>
-            </form>
-        </div>
-    `;
-}
-
 function toggleDrawer(){
     const sidebar = document.getElementById("mainSidebar");
     const overlay = document.getElementById("sidebarOverlay");
@@ -984,11 +972,6 @@ function closeDrawer(){
 }
 
 function renderApp(){
-    if(!profile.name){
-        renderLogin();
-        return;
-    }
-
     const threat = threatLabel();
     document.getElementById("root").innerHTML = `
         <div class="app">
@@ -1022,7 +1005,6 @@ function renderApp(){
                 </div>
 
                 <div class="sidebar-actions">
-                    
                     <button type="button" class="ghost-btn" onclick="showFinal()">Final Report</button>
                     <button type="button" class="danger-btn" onclick="resetProfile()">Reset Progress</button>
                 </div>
@@ -1037,7 +1019,63 @@ function renderApp(){
                 ${profile.viewFinal ? finalReportMarkup() : simulationMarkup()}
             </main>
         </div>
-        
+    `;
+}
+
+function updateSidebarStats(){
+    const threat = threatLabel();
+    const scoreEl = document.querySelector(".score-value");
+    const fill = document.querySelector(".meter-fill");
+    const status = document.querySelector(".meter-status");
+    const mobilePill = document.getElementById("mobileScorePill");
+    if(scoreEl) scoreEl.textContent = profile.score;
+    if(fill){ fill.style.width = threat.width; fill.style.background = threat.color; }
+    if(status){ status.textContent = threat.label; status.style.color = threat.color; }
+    if(mobilePill) mobilePill.textContent = `⚡ ${profile.score}`;
+}
+
+function renderLogin(){
+    document.getElementById("root").innerHTML = `
+        <div class="login-screen">
+            <div class="login-container">
+                <div class="login-card">
+                    <div class="login-header">
+                        <div class="logo">
+                            <span class="lock-icon">🔒</span>
+                            <h1>ThreatSim</h1>
+                        </div>
+                        <p class="tagline">Cyber Awareness Training Simulator</p>
+                    </div>
+
+                    <div class="login-content">
+                        <h2>Welcome, Trainee</h2>
+                        <p class="subtitle">Enter the simulator as a cyber-awareness trainee.<br>Your progress will be saved in this browser.</p>
+                        
+                        <form class="login-form" onsubmit="startProfile(event)">
+                            <div class="input-group">
+                                <label for="playerName">OPERATIVE ID</label>
+                                <input 
+                                    class="name-input" 
+                                    id="playerName" 
+                                    maxlength="24" 
+                                    placeholder="Enter your codename" 
+                                    autocomplete="off"
+                                    required>
+                            </div>
+                            
+                            <button class="start-btn" type="submit">
+                                <span>ENTER SIMULATION</span>
+                                <span class="arrow">→</span>
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="login-footer">
+                        <p>Built for Cyber Defense Training • 2026</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     `;
 }
 
@@ -1231,24 +1269,6 @@ function consequenceMarkup(levelId){
             ${events.map(event => `<p>${event}</p>`).join("")}
         </div>
     `;
-}
-
-function updateSidebarStats(){
-    const threat = threatLabel();
-    const scoreEl = document.querySelector(".score-value");
-    const fill = document.querySelector(".meter-fill");
-    const status = document.querySelector(".meter-status");
-    const mobilePill = document.getElementById("mobileScorePill");
-    if(scoreEl) scoreEl.textContent = profile.score;
-    if(fill){
-        fill.style.width = threat.width;
-        fill.style.background = threat.color;
-    }
-    if(status){
-        status.textContent = threat.label;
-        status.style.color = threat.color;
-    }
-    if(mobilePill) mobilePill.textContent = `⚡ ${profile.score}`;
 }
 
 const achievementDefinitions = [
@@ -1478,7 +1498,7 @@ function finalReportMarkup(){
             <p class="ending-message">${ending.message}</p>
             <div class="reward-badge">${ending.badge}</div>
             <p>Final Security Score: <b>${profile.score}</b></p>
-            <p>Completed Levels: <b>${profile.completedLevels.length}/${levels.length}</b></p>
+            
             <div class="report-grid">
                 <div class="report-box">
                     <h3>Decision Pattern</h3>
@@ -1510,130 +1530,227 @@ function showFinal(){
     saveProfile();
     renderApp();
 }
-// ====================== SENTINEL AI MENTOR - FULLY EXPANDED (Levels 1-10) ======================
+// ====================== SENTINEL AI MENTOR ======================
 
 const mentorResponses = {
-    1: { // Digital Arrest Scam
+    1: { // Digital Arrest Scam - Maharashtra
         0: { // Stage 1 - Incoming Call
-            safe: "Excellent. Always verify official threats independently instead of staying on the call.",
-            risk: "Answering unknown 'Cyber Cell' calls gives them immediate psychological control.",
-            danger: "Even partial identity confirmation helps them personalize and escalate the scam."
+            safe: "Smart. You refused to stay inside their call and chose to verify through official channels. No real Cyber Cell conducts an arrest over a cold incoming call.",
+            risk: "Taking notes shows caution, but remaining on the call gives them full control of the pressure. They will escalate until you break.",
+            danger: "Even a partial Aadhaar detail or address confirmation lets them build a convincing case file. You just handed them a piece of your identity."
         },
         1: { // Stage 2 - Fake Documents
-            safe: "Perfect response. Never trust documents sent during the call — verify externally.",
-            risk: "Analyzing fake documents while they wait still keeps you in their frame.",
-            danger: "Sending any photo or ID gives them real material for identity theft."
+            safe: "Excellent. Any case number or FIR worth investigating can be verified at a real police station. The moment you step outside their channel, the scam collapses.",
+            risk: "Scammers copy real government seals with a basic image editor. Inspecting the formatting while they wait still keeps you emotionally engaged and under pressure.",
+            danger: "That photo will be used to impersonate you in future scams or to forge more convincing identity documents. Never send any ID during an unsolicited call."
         },
         2: { // Stage 3 - Surveillance Threat
-            safe: "Very good. Involving others breaks the isolation tactic they rely on.",
-            risk: "Moving to another room is exactly what they want — total isolation.",
-            danger: "Screen sharing can expose OTPs, banking apps, and personal files."
+            safe: "Breaking isolation is the single most powerful defense here. A second set of ears in the room destroys the psychological grip they built.",
+            risk: "That is exactly what they want. Isolated and alone, your brain has no external reference to push back against their narrative.",
+            danger: "Screen sharing exposes your live banking notifications, OTPs, saved passwords, and contacts — even after you close the banking app. They only need a few seconds."
         },
         3: { // Stage 4 - Money Demand
-            safe: "Correct. No government agency demands money over video calls.",
-            risk: "Staying on the call keeps you trapped under pressure.",
-            danger: "Any transfer, even 'small' or 'refundable', confirms you're a target."
+            safe: "Correct. Not a single government agency in India has a legitimate process that asks citizens to transfer money to verify their innocence over a phone call.",
+            risk: "Every second you stay on the call they build more emotional debt. Silence and waiting is not neutral — it is compliance on a timer.",
+            danger: "The first transfer, however small, confirms you are a willing target. They will follow up immediately with a larger demand and a tighter deadline."
         }
     },
-    2: { // Water Bill Scam
-        0: { 
-            safe: "Smart move. Always check your official bill or portal before reacting to WhatsApp alerts.",
-            risk: "Calling the number in the message puts you directly in the scammer's channel.",
-            danger: "Confirming account details helps them build credibility for later stages."
+    2: { // Water Bill Disconnection Scam - Uttar Pradesh
+        0: { // Stage 1 - WhatsApp Notice
+            safe: "Well done. Any legitimate disconnection notice will also appear in your consumer portal or on your printed bill. A WhatsApp message with a logo is not an official notice.",
+            risk: "That number is controlled by the scammer. The moment you call, you are inside their script and they will guide every next step.",
+            danger: "Your meter address and payment history are exactly what they need to make the next stage of the call feel personal and official."
         },
-        1: {
-            safe: "Good. Moving verification to the official portal removes their payment link.",
-            danger: "Even small payments are often used to capture UPI or card details."
+        1: { // Stage 2 - Rs 12 Payment
+            safe: "Good move. A tiny payment demand is designed to feel harmless. Checking the official portal removes the payment link from the equation entirely.",
+            risk: "Changing the delivery channel does not change where the link leads. SMS or WhatsApp, the destination is the same fraudulent payment gateway.",
+            danger: "That Rs 12 page is built to capture your UPI ID, card number, or CVV. The amount is small on purpose — it lowers your guard completely."
         },
-        2: {
-            safe: "Correct. Never install APKs from messages — use only official app stores.",
-            danger: "Installing unknown APKs can lead to full device compromise."
+        2: { // Stage 3 - APK Install
+            safe: "Correct. Legitimate utility apps are available on the Play Store or the official authority website. An APK sent over WhatsApp has zero accountability.",
+            risk: "An APK sitting on your phone can be triggered remotely or installed accidentally. There is no safe version of an unknown APK file.",
+            danger: "That APK has SMS-reading permission. The moment it runs, every OTP you receive goes to the attacker. Your banking access is now shared."
         },
-        3: {
-            safe: "Excellent. Always verify utility issues using official customer care numbers."
+        3: { // Stage 4 - Countdown Pressure
+            safe: "Perfect. A real disconnection team will have a work order number you can verify through the official customer-care line on your bill.",
+            risk: "Opening UPI while the caller is speaking means they can walk you through a payment step-by-step. The 'guidance' is the scam.",
+            danger: "A neighbor check may confirm the message is widespread, but it still delays official verification. Only the authority portal confirms your actual account status."
         }
     },
-    3: { // Investment Scam
-        0: {
-            safe: "Wise decision. Always verify SEBI registration and company legitimacy first.",
-            danger: "Requesting a mentor call gives them direct personal access to manipulate you."
+    3: { // Fake Investment Scam - Gujarat
+        0: { // Stage 1 - Instagram Ad
+            safe: "Good discipline. Every legitimate investment platform in India is registered with SEBI. If you cannot find their registration number in under 60 seconds, it does not exist.",
+            risk: "Entering with notifications muted still adds you to their funnel. Now they have a warm contact to follow up on.",
+            danger: "A mentor call gives the scammer direct personal access. They will use that relationship to slowly build your trust before the real ask begins."
         },
-        1: {
-            safe: "Good instinct. Suppressed criticism in groups is a major red flag.",
-            danger: "Engaging with the admin moves you deeper into their funnel."
+        1: { // Stage 2 - Social Proof
+            safe: "Strong instinct. Suppressed questions in a trading group mean the admin is managing the narrative. Real investment communities allow skepticism.",
+            risk: "Every member who replies to a private message is either a bot or another scammer playing a character. The entire group is performance.",
+            danger: "Telling the admin to reserve your spot is an explicit signal that you are ready to invest. Expect a personal message within minutes."
         },
-        2: {
-            safe: "Smart. Trying to withdraw early often reveals the scam.",
-            danger: "Adding more money to 'test' the platform plays into their greed trap."
+        2: { // Stage 3 - Fake Dashboard
+            safe: "Smart. Withdrawal requests expose the scam faster than any other test. If the platform blocks, delays, or adds fees, the money was never real.",
+            risk: "The chart is a web animation scripted to impress. Adding more money to test a fabricated dashboard only deepens your loss.",
+            danger: "Sharing the app spreads the scam and draws in someone who may trust your endorsement more than a stranger's."
         },
-        3: {
-            danger: "Paying extra fees to 'unlock' profits is the classic pig-butchering endgame."
+        3: { // Stage 4 - Withdrawal Trap
+            safe: "Correct. Stop all transfers. Screenshot every conversation, transaction, and group message. Those records are your evidence for a cybercrime complaint.",
+            risk: "Negotiating the fee amount keeps you engaged with the scammer's logic. They will agree to a lower fee, then invent another one.",
+            danger: "This is the pig-butchering endgame. They will keep inventing fees — tax, compliance, exchange rate adjustment — until you stop paying."
         }
     },
-    4: { // Tech Support Scam
-        0: {
-            safe: "Correct. Browser popups can be faked — use built-in security tools.",
-            danger: "Calling numbers from popups connects you directly to scammers."
+    4: { // Fake Tech Support Scam - Karnataka
+        0: { // Stage 1 - Virus Popup
+            safe: "Correct. Legitimate security alerts come from your installed antivirus software, not browser popups. A browser cannot detect or count viruses.",
+            risk: "Searching for the company while the popup is visible keeps you in the same panic-mode the popup was designed to create.",
+            danger: "That phone number connects directly to the scammer's call center. From that point, everything they say is scripted to install remote access software."
         },
-        2: {
-            danger: "Never grant remote access. Real support does not need to control your device."
+        1: { // Stage 2 - Support Call
+            safe: "Good call. Microsoft, Apple, and major antivirus companies do not proactively call consumers about detected threats. Hang up immediately.",
+            risk: "Describing your symptoms gives them exactly the script they need to sound credible and manufacture a convincing fake solution.",
+            danger: "Staying on the line while they guide your screen puts you seconds away from approving a remote access installation."
         },
-        3: {
-            safe: "Good recovery step. Always run scans from trusted antivirus software."
+        2: { // Stage 3 - Remote Access
+            safe: "Critical decision. No legitimate tech support team requires remote access to run a diagnostic. That connection gives them full keyboard and file access.",
+            risk: "Watching without intervening still allows them to map your system, read file names, and position for the next step.",
+            danger: "With remote access installed they can access banking portals, copy saved passwords, read OTPs, and leave persistent backdoors."
+        },
+        3: { // Stage 4 - Recovery
+            safe: "Right response. Run a full system scan, revoke all remote sessions, change passwords from a separate clean device, and monitor your bank statements.",
+            risk: "Deleting the popup does not remove remote access software that may already be installed. A full scan is non-negotiable.",
+            danger: "Waiting for a transaction alert means giving the attacker a free window to access your accounts while you do nothing."
         }
     },
     5: { // Marketplace Payment Scam
-        0: {
-            safe: "Best practice. Keep transactions inside the platform for protection.",
-            danger: "Sharing UPI ID early is a common entry point for collect request scams."
+        0: { // Stage 1 - UPI Sharing
+            safe: "Best practice. Never move a transaction outside the platform. Marketplace protections exist precisely for these moments.",
+            risk: "Messaging outside the platform removes all buyer and seller protections. You are now in an unmonitored channel.",
+            danger: "Sharing your UPI ID outside the platform opens you up to collect requests. You may think you are receiving payment — but you are approving a send."
         },
-        2: {
-            danger: "Entering UPI PIN on a collect request means you're sending money, not receiving it."
+        1: { // Stage 2 - Fake Screenshot
+            safe: "Smart. Payment screenshots are trivially easy to fake. Only the notification in your own app or your bank's SMS is proof of payment.",
+            risk: "Waiting for official confirmation is correct, but sharing the item address in advance removes your only negotiating leverage.",
+            danger: "Handing over the item before payment clears is the oldest marketplace scam in existence. You will not see the money or the item again."
+        },
+        2: { // Stage 3 - UPI Collect Request
+            safe: "Excellent. A collect request with a payment note never means money is coming to you. It means you are being asked to send.",
+            risk: "A real buyer never needs your PIN. Anyone asking for your UPI PIN to 'complete a receive' is describing a payment you are sending, not getting.",
+            danger: "Entering your UPI PIN on a collect request immediately completes a transfer out of your account. The Rs 12,000 is gone the moment you tap confirm."
+        },
+        3: { // Stage 4 - Advance Pressure
+            safe: "Correct. Report the account to the platform and the National Cyber Crime portal at cybercrime.gov.in. Your report may protect the next target.",
+            risk: "A video call can be spoofed or pre-recorded. It does not verify identity or guarantee payment.",
+            danger: "Paying any advance to receive a larger amount is a classic advance-fee fraud structure. The larger payment will never arrive."
         }
     },
     6: { // AI Deepfake Scam
-        0: {
-            safe: "Good caution. Always question new numbers even if the face looks familiar.",
-            danger: "Discussing money arrangements during emotional calls is very dangerous."
+        0: { // Stage 1 - Video Call
+            safe: "Good caution. Voice and face can both be cloned from as little as 30 seconds of public video. An unknown number is a red flag regardless of how familiar the face looks.",
+            risk: "Asking about money arrangements during the call keeps you inside the emotional pressure the deepfake was designed to create.",
+            danger: "Discussing repayment during the call tells them you are emotionally invested. They will immediately move to the payment demand stage."
         },
-        1: {
-            safe: "Excellent. Verifying through saved contacts or family passphrase is crucial.",
-            danger: "Sending money based on video calls without verification is a common mistake."
+        1: { // Stage 2 - Distress Message
+            safe: "Essential step. A quick call to a saved family member takes 20 seconds and instantly collapses any deepfake impersonation.",
+            risk: "Scammers harvest personal detail from social media. A security question about a pet name or school may already be in their notes.",
+            danger: "Emotional pressure overrides rational checks. Sending the first amount confirms you are reachable through urgency — and they will call again."
         },
-        3: {
-            danger: "Mismatched beneficiary names are one of the strongest red flags."
+        2: { // Stage 3 - Realistic Face
+            safe: "Pre-agreed passphrases are the single strongest defense against deepfake calls. No AI can know a phrase you agreed on privately last week.",
+            risk: "Natural facial reactions can be simulated by real-time deepfake engines. Visual confidence is not identity confirmation.",
+            danger: "Taking 60 seconds to call a known number is never wasted in an emergency. If the situation were truly urgent, that verification would be welcomed."
+        },
+        3: { // Stage 4 - Payment Demand
+            safe: "Correct. A mismatched beneficiary name means the account is not connected to the person on the call. That is proof of fraud, not a coincidence.",
+            risk: "A smaller amount still confirms willingness to transfer. The scammer now has your payment account linked to their operation.",
+            danger: "Emergency accounts belonging to a third party are the clearest possible warning sign. Real emergencies use accounts in the recipient's own name."
         }
     },
-    7: { // Bank KYC Phishing
-        0: {
-            safe: "Perfect. Always open your bank app directly instead of clicking links.",
-            danger: "Clicking links in urgent KYC emails leads to credential theft."
+    7: { // Bank KYC Phishing - Delhi
+        0: { // Stage 1 - Bank Email
+            safe: "Perfect. Open the official app yourself and check for any KYC alerts there. If it does not appear in your app, it does not exist.",
+            risk: "Your reply goes to the attacker's inbox. They can use it to gather more details or send a more convincing follow-up.",
+            danger: "The sender domain is not your bank's domain. Every link on that page leads to a server the attacker controls."
         },
-        2: {
-            danger: "Never enter OTPs on pages reached through email or SMS links."
+        1: { // Stage 2 - Fake Login
+            safe: "Good instinct. Never continue on a page you reached through an email link. Type the bank address yourself in a fresh tab.",
+            risk: "Password reuse is dangerous regardless of how old the password feels. If that email is connected to any active account, you have a problem.",
+            danger: "You just gave the attacker your banking credentials. They will attempt login within seconds of receiving them."
+        },
+        2: { // Stage 3 - OTP Trap
+            safe: "Critical. The OTP message itself tells you what it is approving. If it says Rs 49,999 transaction and you did not initiate one, do not enter it anywhere.",
+            risk: "Requesting a second OTP does not reset your already-entered credentials. The attacker already has your username and password.",
+            danger: "That OTP is approving a transaction or a new device login. Entering it hands the attacker full access to your account."
+        },
+        3: { // Stage 4 - Recovery
+            safe: "Right actions. Change password immediately from the official app, revoke all active sessions, and call the bank's official helpline to flag the incident.",
+            risk: "Deleting the email destroys evidence you may need for a fraud complaint. Keep everything and take screenshots before taking recovery action.",
+            danger: "Every minute of delay is a window for the attacker. KYC credential theft typically results in a transaction attempt within hours."
         }
     },
-    8: { // UPI Collect Request Scam
-        1: {
-            danger: "Approving collect requests to 'receive' money actually sends money from your account."
+    8: { // UPI Collect Request Scam - Telangana
+        0: { // Stage 1 - Collect Request
+            safe: "Correct. A collect request means money is being requested from you, not sent to you. The words 'receive money' in a collect request are deliberately misleading.",
+            risk: "Calling the number in the request connects you to the attacker, who will use social engineering to walk you through approving it.",
+            danger: "Approving that request sends money out of your account. The PIN entry confirms the transfer — it does not receive anything."
         },
-        3: {
-            safe: "Correct. UPI PIN is only for outgoing payments, never for receiving."
+        1: { // Stage 2 - Caller Persuasion
+            safe: "Good. No bank or payment platform ever needs your UPI PIN over the phone. The PIN is used only by you, only in your app, only to send money.",
+            risk: "Staying on the call while checking gives the attacker time to keep persuading you. The longer the call, the more pressure builds.",
+            danger: "The person on the call already knows your PIN will complete a transfer. They are guiding you through a payment disguised as a refund."
+        },
+        2: { // Stage 3 - Refund Claim
+            safe: "Smart. Report the number on cybercrime.gov.in and block it. A refund from an unknown seller always comes through the platform, not a direct UPI request.",
+            risk: "Sharing your UPI ID again opens the door to a second collect request. They may adjust the amount to something smaller to seem more credible.",
+            danger: "A Rs 1 test collect request is just calibration. If you approve the small one, a larger request follows within seconds."
+        },
+        3: { // Stage 4 - PIN Request
+            safe: "Absolutely right. UPI PIN is exclusively for outgoing payments. No incoming transfer, refund, or cashback has ever required your PIN.",
+            risk: "Asking for a transaction ID from the attacker only gives them more time to keep the call going and renew the pressure.",
+            danger: "The moment you share your PIN, the attacker can approve any collect request from any device linked to your UPI. Your account is now theirs."
         }
     },
     9: { // Parcel Delivery Phishing
-        0: {
-            safe: "Good. Always track parcels through official apps or websites.",
-            danger: "Paying small redelivery fees on fake sites leads to card theft."
+        0: { // Stage 1 - Delivery SMS
+            safe: "Well done. All major courier companies have official apps and websites with real-time tracking. An SMS link is never the only tracking option.",
+            risk: "The tracking number on a fake SMS is generated to look real. Entering it on a fraudulent site confirms your engagement.",
+            danger: "That redelivery fee page is built to capture your card number, expiry, and CVV. The amount is small on purpose."
+        },
+        1: { // Stage 2 - Fake Portal
+            safe: "Good. The official site address should match exactly what is printed on your shipping confirmation email or the courier's verified website.",
+            risk: "Browser SSL indicators confirm encryption, not identity. A phishing site can have a valid certificate. The domain name is what matters.",
+            danger: "Entering your card on any page reached through an SMS link means your financial data is now on an attacker-controlled server."
+        },
+        2: { // Stage 3 - Card Details
+            safe: "Correct. Stop immediately. Do not complete the payment and close the tab. If you already entered any detail, block your card through your bank app now.",
+            risk: "Restarting the transaction gives the attacker a second attempt to capture your details. The page is still fraudulent.",
+            danger: "Completing the transaction sends your full card data to the attacker. Expect unauthorized transactions within hours."
+        },
+        3: { // Stage 4 - Data Entry
+            safe: "Right move. Contact your bank immediately to flag the card as potentially compromised and monitor for any unauthorized charges.",
+            risk: "Virtual cards are safer but the risk still exists on a fraudulent site. The attacker has the virtual card number and can use it immediately.",
+            danger: "That small payment confirms your card is active and valid. Expect the full balance to be tested in a series of micro-transactions."
         }
     },
     10: { // Fake Recruitment Scam
-        0: {
-            safe: "Wise. Always verify job offers through official company websites.",
-            danger: "Opening onboarding links from unsolicited emails risks document theft."
+        0: { // Stage 1 - Offer Email
+            safe: "Smart. Verify the offer through the company's official careers page and call their listed HR line. A real offer will be on record.",
+            risk: "Responding to ask for more details extends your engagement with the scammer. They now know you are interested.",
+            danger: "Onboarding links from unsolicited emails are credential-harvesting pages. Your documents go straight to the attacker."
         },
-        2: {
-            danger: "Legitimate employers never demand processing fees from candidates."
+        1: { // Stage 2 - Document Request
+            safe: "Correct. A legitimate employer provides a verifiable HR contact before requesting sensitive documents. If they cannot, the offer is fake.",
+            risk: "Sending only old documents still provides personal identity data that can be used for identity theft or resale.",
+            danger: "Your Aadhaar, PAN, and bank details are everything an attacker needs to open accounts, take loans, or commit fraud in your name."
+        },
+        2: { // Stage 3 - Processing Fee
+            safe: "Absolutely. No legitimate company charges candidates a fee to process their own employment offer. This is the clearest signal that the job is fake.",
+            risk: "Asking for a refund guarantee keeps you in conversation with the scammer. They will manufacture a convincing-sounding policy.",
+            danger: "That fee will be followed by a background check fee, a uniform deposit, and a security clearance charge. The job does not exist."
+        },
+        3: { // Stage 4 - Background Verification
+            safe: "Good. Report the job post to the platform and the company being impersonated. File a complaint at cybercrime.gov.in with all communications preserved.",
+            risk: "The callback number goes to the same scammer. No real HR verification process uses unsolicited cold calls from unknown numbers.",
+            danger: "Sharing your references exposes two more people to the same scam. The attacker now has warm leads with built-in trust from your endorsement."
         }
     }
 };
@@ -1641,75 +1758,72 @@ const mentorResponses = {
 function getTailoredMentorResponse(levelId, stageIndex, severity) {
     const levelData = mentorResponses[levelId];
     if (!levelData || !levelData[stageIndex]) {
-        if (severity === "safe") return "Strong decision. You're developing good cyber awareness.";
-        if (severity === "danger") return "This choice created real risk. Be extra careful next time.";
-        return "That was a risky move. Scammers often exploit small compromises.";
+        if (severity === "safe") return "Strong decision. You identified the right move under pressure.";
+        if (severity === "danger") return "That choice opened a real vulnerability. Scammers count on exactly that reaction.";
+        return "A risky move. Staying cautious under pressure is harder than it looks.";
     }
-
     const stageData = levelData[stageIndex];
-    return stageData[severity] || 
-           (severity === "safe" ? "Well handled in this context." : 
-            severity === "danger" ? "High risk decision in this scenario." : "Proceed with caution.");
+    return stageData[severity] || (severity === "safe" ? "Well handled." : severity === "danger" ? "That created real risk." : "Risky, but recoverable.");
 }
 
 function showMentorToast(message, state = "neutral") {
+    // Do not show toasts on mobile
+    if (window.innerWidth <= 1050) return;
+
+    // Remove any existing toast
+    const existing = document.querySelector(".mentor-toast");
+    if (existing) existing.remove();
+
     const toast = document.createElement("div");
     toast.className = `mentor-toast ${state}`;
     toast.innerHTML = `
-        <div style="display:flex;align-items:center;gap:12px;">
-            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(#00ffd5,#00b38f);display:flex;align-items:center;justify-content:center;color:#041014;font-weight:900;font-size:16px;">S</div>
+        <div style="display:flex;align-items:flex-start;gap:12px;">
+            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(145deg,#00ffd5,#00b38f);display:flex;align-items:center;justify-content:center;color:#041014;font-weight:900;font-size:17px;flex-shrink:0;">S</div>
             <div style="flex:1;">
-                <strong style="color:#00ffd5;">Sentinel</strong><br>
-                <span style="font-size:0.93rem;line-height:1.45;">${message}</span>
+                <strong style="color:#00ffd5;font-size:0.82rem;letter-spacing:0.08em;text-transform:uppercase;">Sentinel</strong><br>
+                <span style="font-size:0.91rem;line-height:1.5;color:#cde0f0;">${message}</span>
             </div>
         </div>
     `;
     document.body.appendChild(toast);
-    
-    setTimeout(() => toast.classList.add("show"), 100);
-    setTimeout(() => {
-        toast.classList.remove("show");
-        setTimeout(() => toast.remove(), 600);
-    }, 4200);
+    setTimeout(() => toast.classList.add("show"), 80);
+    setTimeout(() => { toast.classList.remove("show"); setTimeout(() => toast.remove(), 500); }, 5200);
 }
 
-function triggerInitialGreeting() {
-    setTimeout(() => {
-        showMentorToast("Hello. I am Sentinel, your cyber analyst. I'll give you specific feedback tailored to each level and choice.", "neutral");
-    }, 1000);
+function initSentinel() {
+    if (document.getElementById("mentorFloat")) return;
+    // Only render on desktop
+    if (window.innerWidth <= 1050) return;
+
+    const el = document.createElement("div");
+    el.id = "mentorFloat";
+    el.title = "Sentinel — Cyber Analyst";
+    el.style.cssText = "position:fixed;bottom:30px;right:30px;width:60px;height:60px;background:linear-gradient(145deg,#00ffd5,#00b38f);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,255,213,0.45);z-index:250;cursor:default;transition:transform .25s,box-shadow .25s;";
+    el.innerHTML = `<span style="font-size:26px;color:#041014;font-weight:900;pointer-events:none;">S</span>`;
+    document.body.appendChild(el);
 }
 
-// Hook into chooseAction
-const originalChooseAction = chooseAction;
-chooseAction = function(index) {
-    originalChooseAction(index);
+// Hook into chooseAction to fire Sentinel after each decision
+const _origChoose = window.chooseAction;
+window.chooseAction = function(index) {
+    if (typeof _origChoose === "function") _origChoose(index);
+
+    if (window.innerWidth <= 1050) return; // Sentinel is desktop-only
 
     const levelId = profile.activeLevel;
     const stageIndex = activeStage;
     const selected = levels[levelId - 1].stages[stageIndex].choices[index];
-    
     const message = getTailoredMentorResponse(levelId, stageIndex, selected.severity);
-    const state = selected.severity === "safe" ? "impressed" : 
-                selected.severity === "danger" ? "warning" : "alert";
-
-    setTimeout(() => showMentorToast(message, state), 750);
+    const state = selected.severity === "safe" ? "impressed" : selected.severity === "danger" ? "warning" : "alert";
+    setTimeout(() => showMentorToast(message, state), 700);
 };
 
-// Add Floating Sentinel Icon
+// Initialize on page load if already logged in
 setTimeout(() => {
-    if (document.getElementById("mentorFloat")) return;
-
-    const html = `
-        <div id="mentorFloat" onclick="alert('Sentinel gives you tailored advice after every choice you make.')"
-            style="position:fixed;bottom:30px;right:30px;width:68px;height:68px;background:linear-gradient(145deg,#00ffd5,#00b38f);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 35px rgba(0,255,213,0.5);z-index:250;cursor:pointer;transition:all .3s;">
-            <span style="font-size:34px;color:#041014;font-weight:900;">S</span>
-        </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', html);
-
-    triggerInitialGreeting();
+    if (profile && profile.name) {
+        initSentinel();
+    }
 }, 600);
 
-console.log("%c✅ Sentinel Fully Expanded (Levels 1-10) Loaded", "color:#00ffd5;font-weight:bold");
-
-renderApp();
+console.log("%c✅ ThreatSim ready", "color:#00ffd5;font-weight:bold");
+renderLogin();
