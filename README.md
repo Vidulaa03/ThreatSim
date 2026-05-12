@@ -12,7 +12,7 @@ https://threat-sim-alpha.vercel.app/
 
 ---
 
-# 🚀 Features
+#  Features
 
 - 10 interactive cybercrime simulation levels
 - Walkthrough-style learning experience
@@ -28,6 +28,21 @@ https://threat-sim-alpha.vercel.app/
 - Interactive scam messages, fake portals, calls, and documents
 
 ---
+# 🌍 Reality Check Feature
+
+ThreatSim includes a Reality Check section that connects each simulation level to real cybercrime incidents reported across India in 2025.
+
+After completing a level, users can view:
+- real scam references
+- state-specific cybercrime cases
+- prevention tips
+- linked news articles
+
+This helps users understand how the scams shown in the simulator relate to real-world cyber threats and awareness trends.
+
+---
+
+
 ## 🎖️ Current Achievements
 
 | Achievement | Unlock Requirement |
@@ -40,7 +55,7 @@ https://threat-sim-alpha.vercel.app/
 | Investigator | Unlocks after using verification-focused decisions 10 times |
 
 ---
-# 🧠 Simulation Levels
+#  Simulation Levels
 
 | State | Scam Type |
 |---|---|
@@ -106,7 +121,7 @@ OR
 
 ---
 
-# 🎮 Interactive Learning Approach
+#  Interactive Learning Approach
 
 ThreatSim focuses on:
 
@@ -126,7 +141,7 @@ This creates a more immersive and memorable learning experience.
 
 ---
 
-# 🤖 Sentinel AI Mentor
+# 🤖 Sentinel Mentor
 
 Sentinel is an integrated cyber mentor system that:
 
@@ -141,18 +156,6 @@ The mentor dynamically responds based on:
 - threat level
 - scam type
 - risky decisions
-
----
-
-# 📱 UI/UX Features
-
-- Cyberpunk-inspired dark mode
-- Responsive mobile design
-- Collapsible sidebar navigation
-- Dynamic walkthrough rendering
-- Threat visualization system
-- Interactive dialogue panels
-- Animated mentor interface
 
 ---
 
@@ -173,7 +176,7 @@ The mentor dynamically responds based on:
 
 ---
 
-# 🧠 Psychology Concepts Covered
+#  Psychology Concepts Covered
 
 - Fear Manipulation
 - Authority Bias
@@ -187,7 +190,7 @@ The mentor dynamically responds based on:
 
 ---
 
-# 🔮 Future Improvements
+#  Future Improvements
 
 - AI-generated scam conversations
 - Voice interaction
