@@ -4,7 +4,7 @@ const defaultProfile = {
     name:"",
     score:100,
     threat:0,
-    unlockedLevel:1,
+    unlockedLevel:10,
     completedLevels:[],
     activeLevel:1,
     viewFinal:false,
@@ -787,7 +787,6 @@ function resetProfile(){
 }
 
 function selectLevel(id){
-    if(id > profile.unlockedLevel) return;
     closeDrawer();
     profile.activeLevel = id;
     profile.viewFinal = false;
@@ -795,6 +794,16 @@ function selectLevel(id){
     feedbackLocked = false;
     saveProfile();
     renderApp();
+
+    const mainEl = document.getElementById("mainContent");
+    if(mainEl){
+        mainEl.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 }
 
 function getRank(){
@@ -1034,7 +1043,7 @@ function renderApp(){
 
 function levelButton(level){
     const completed = profile.completedLevels.includes(level.id);
-    const locked = level.id > profile.unlockedLevel;
+    const locked = false;;
     const active = level.id === profile.activeLevel;
     const icon = completed ? "✅" : locked ? "🔒" : "🔓";
     return `<button type="button" class="level-item ${completed ? "completed" : ""} ${locked ? "locked" : ""} ${active ? "active" : ""}" onclick="selectLevel(${level.id})">
@@ -1045,9 +1054,7 @@ function levelButton(level){
 
 function simulationMarkup(){
     const level = levels[profile.activeLevel - 1];
-    if(profile.activeLevel > profile.unlockedLevel){
-        return `<div class="locked-view"><h2>Level Locked</h2><p>Complete the previous level to unlock this case.</p></div>`;
-    }
+    
 
     const stage = level.stages[activeStage];
     return `
