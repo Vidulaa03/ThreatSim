@@ -1028,6 +1028,7 @@ function renderApp(){
                 ${profile.viewFinal ? finalReportMarkup() : simulationMarkup()}
             </main>
         </div>
+        
     `;
 }
 
@@ -1502,5 +1503,206 @@ function showFinal(){
     saveProfile();
     renderApp();
 }
+// ====================== SENTINEL AI MENTOR - FULLY EXPANDED (Levels 1-10) ======================
+
+const mentorResponses = {
+    1: { // Digital Arrest Scam
+        0: { // Stage 1 - Incoming Call
+            safe: "Excellent. Always verify official threats independently instead of staying on the call.",
+            risk: "Answering unknown 'Cyber Cell' calls gives them immediate psychological control.",
+            danger: "Even partial identity confirmation helps them personalize and escalate the scam."
+        },
+        1: { // Stage 2 - Fake Documents
+            safe: "Perfect response. Never trust documents sent during the call — verify externally.",
+            risk: "Analyzing fake documents while they wait still keeps you in their frame.",
+            danger: "Sending any photo or ID gives them real material for identity theft."
+        },
+        2: { // Stage 3 - Surveillance Threat
+            safe: "Very good. Involving others breaks the isolation tactic they rely on.",
+            risk: "Moving to another room is exactly what they want — total isolation.",
+            danger: "Screen sharing can expose OTPs, banking apps, and personal files."
+        },
+        3: { // Stage 4 - Money Demand
+            safe: "Correct. No government agency demands money over video calls.",
+            risk: "Staying on the call keeps you trapped under pressure.",
+            danger: "Any transfer, even 'small' or 'refundable', confirms you're a target."
+        }
+    },
+    2: { // Water Bill Scam
+        0: { 
+            safe: "Smart move. Always check your official bill or portal before reacting to WhatsApp alerts.",
+            risk: "Calling the number in the message puts you directly in the scammer's channel.",
+            danger: "Confirming account details helps them build credibility for later stages."
+        },
+        1: {
+            safe: "Good. Moving verification to the official portal removes their payment link.",
+            danger: "Even small payments are often used to capture UPI or card details."
+        },
+        2: {
+            safe: "Correct. Never install APKs from messages — use only official app stores.",
+            danger: "Installing unknown APKs can lead to full device compromise."
+        },
+        3: {
+            safe: "Excellent. Always verify utility issues using official customer care numbers."
+        }
+    },
+    3: { // Investment Scam
+        0: {
+            safe: "Wise decision. Always verify SEBI registration and company legitimacy first.",
+            danger: "Requesting a mentor call gives them direct personal access to manipulate you."
+        },
+        1: {
+            safe: "Good instinct. Suppressed criticism in groups is a major red flag.",
+            danger: "Engaging with the admin moves you deeper into their funnel."
+        },
+        2: {
+            safe: "Smart. Trying to withdraw early often reveals the scam.",
+            danger: "Adding more money to 'test' the platform plays into their greed trap."
+        },
+        3: {
+            danger: "Paying extra fees to 'unlock' profits is the classic pig-butchering endgame."
+        }
+    },
+    4: { // Tech Support Scam
+        0: {
+            safe: "Correct. Browser popups can be faked — use built-in security tools.",
+            danger: "Calling numbers from popups connects you directly to scammers."
+        },
+        2: {
+            danger: "Never grant remote access. Real support does not need to control your device."
+        },
+        3: {
+            safe: "Good recovery step. Always run scans from trusted antivirus software."
+        }
+    },
+    5: { // Marketplace Payment Scam
+        0: {
+            safe: "Best practice. Keep transactions inside the platform for protection.",
+            danger: "Sharing UPI ID early is a common entry point for collect request scams."
+        },
+        2: {
+            danger: "Entering UPI PIN on a collect request means you're sending money, not receiving it."
+        }
+    },
+    6: { // AI Deepfake Scam
+        0: {
+            safe: "Good caution. Always question new numbers even if the face looks familiar.",
+            danger: "Discussing money arrangements during emotional calls is very dangerous."
+        },
+        1: {
+            safe: "Excellent. Verifying through saved contacts or family passphrase is crucial.",
+            danger: "Sending money based on video calls without verification is a common mistake."
+        },
+        3: {
+            danger: "Mismatched beneficiary names are one of the strongest red flags."
+        }
+    },
+    7: { // Bank KYC Phishing
+        0: {
+            safe: "Perfect. Always open your bank app directly instead of clicking links.",
+            danger: "Clicking links in urgent KYC emails leads to credential theft."
+        },
+        2: {
+            danger: "Never enter OTPs on pages reached through email or SMS links."
+        }
+    },
+    8: { // UPI Collect Request Scam
+        1: {
+            danger: "Approving collect requests to 'receive' money actually sends money from your account."
+        },
+        3: {
+            safe: "Correct. UPI PIN is only for outgoing payments, never for receiving."
+        }
+    },
+    9: { // Parcel Delivery Phishing
+        0: {
+            safe: "Good. Always track parcels through official apps or websites.",
+            danger: "Paying small redelivery fees on fake sites leads to card theft."
+        }
+    },
+    10: { // Fake Recruitment Scam
+        0: {
+            safe: "Wise. Always verify job offers through official company websites.",
+            danger: "Opening onboarding links from unsolicited emails risks document theft."
+        },
+        2: {
+            danger: "Legitimate employers never demand processing fees from candidates."
+        }
+    }
+};
+
+function getTailoredMentorResponse(levelId, stageIndex, severity) {
+    const levelData = mentorResponses[levelId];
+    if (!levelData || !levelData[stageIndex]) {
+        if (severity === "safe") return "Strong decision. You're developing good cyber awareness.";
+        if (severity === "danger") return "This choice created real risk. Be extra careful next time.";
+        return "That was a risky move. Scammers often exploit small compromises.";
+    }
+
+    const stageData = levelData[stageIndex];
+    return stageData[severity] || 
+           (severity === "safe" ? "Well handled in this context." : 
+            severity === "danger" ? "High risk decision in this scenario." : "Proceed with caution.");
+}
+
+function showMentorToast(message, state = "neutral") {
+    const toast = document.createElement("div");
+    toast.className = `mentor-toast ${state}`;
+    toast.innerHTML = `
+        <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(#00ffd5,#00b38f);display:flex;align-items:center;justify-content:center;color:#041014;font-weight:900;font-size:16px;">S</div>
+            <div style="flex:1;">
+                <strong style="color:#00ffd5;">Sentinel</strong><br>
+                <span style="font-size:0.93rem;line-height:1.45;">${message}</span>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(toast);
+    
+    setTimeout(() => toast.classList.add("show"), 100);
+    setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 600);
+    }, 4200);
+}
+
+function triggerInitialGreeting() {
+    setTimeout(() => {
+        showMentorToast("Hello. I am Sentinel, your cyber analyst. I'll give you specific feedback tailored to each level and choice.", "neutral");
+    }, 1000);
+}
+
+// Hook into chooseAction
+const originalChooseAction = chooseAction;
+chooseAction = function(index) {
+    originalChooseAction(index);
+
+    const levelId = profile.activeLevel;
+    const stageIndex = activeStage;
+    const selected = levels[levelId - 1].stages[stageIndex].choices[index];
+    
+    const message = getTailoredMentorResponse(levelId, stageIndex, selected.severity);
+    const state = selected.severity === "safe" ? "impressed" : 
+                selected.severity === "danger" ? "warning" : "alert";
+
+    setTimeout(() => showMentorToast(message, state), 750);
+};
+
+// Add Floating Sentinel Icon
+setTimeout(() => {
+    if (document.getElementById("mentorFloat")) return;
+
+    const html = `
+        <div id="mentorFloat" onclick="alert('Sentinel gives you tailored advice after every choice you make.')"
+            style="position:fixed;bottom:30px;right:30px;width:68px;height:68px;background:linear-gradient(145deg,#00ffd5,#00b38f);border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 12px 35px rgba(0,255,213,0.5);z-index:250;cursor:pointer;transition:all .3s;">
+            <span style="font-size:34px;color:#041014;font-weight:900;">S</span>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', html);
+
+    triggerInitialGreeting();
+}, 600);
+
+console.log("%c✅ Sentinel Fully Expanded (Levels 1-10) Loaded", "color:#00ffd5;font-weight:bold");
 
 renderApp();

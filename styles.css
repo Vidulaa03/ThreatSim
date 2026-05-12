@@ -1223,3 +1223,166 @@ body {
         padding:16px;
     }
 }
+/* ====================== SENTINEL MENTOR SYSTEM ====================== */
+.mentor-panel {
+    position: fixed;
+    right: 24px;
+    top: 120px;
+    width: 320px;
+    background: rgba(7, 15, 30, 0.95);
+    border: 1px solid rgba(0, 255, 213, 0.4);
+    border-radius: 16px;
+    box-shadow: 0 0 40px rgba(0, 255, 213, 0.15);
+    overflow: hidden;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+}
+
+.mentor-header {
+    background: linear-gradient(90deg, #0a1328, #11223d);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid rgba(0, 255, 213, 0.3);
+}
+
+.mentor-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #00ffd5, #00b38f);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 25px rgba(0, 255, 213, 0.6);
+    animation: hologramPulse 4s infinite ease-in-out;
+    position: relative;
+}
+
+.mentor-avatar::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border: 2px solid rgba(0, 255, 213, 0.3);
+    border-radius: 50%;
+    animation: hologramRing 6s infinite linear;
+}
+
+@keyframes hologramPulse { 0%,100% { box-shadow: 0 0 25px rgba(0,255,213,0.6); } 50% { box-shadow: 0 0 45px rgba(0,255,213,0.9); }}
+@keyframes hologramRing { from { transform: rotate(0deg); } to { transform: rotate(360deg); }}
+
+.mentor-name { font-weight: 600; color: #00ffd5; }
+.mentor-status { font-size: 0.78rem; padding: 2px 10px; border-radius: 9999px; }
+
+.mentor-body { padding: 18px; min-height: 260px; }
+.mentor-dialogue { font-family: 'JetBrains Mono', monospace; line-height: 1.65; color: #e0f0ff; min-height: 140px; }
+
+.typing-cursor { animation: blink 0.7s step-end infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+.insight-box {
+    background: rgba(16, 34, 58, 0.6);
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    border-left: 3px solid #00ffd5;
+    margin-top: 12px;
+}
+
+.mentor-float {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(145deg, #00ffd5, #00b38f);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(0,255,213,0.4);
+    z-index: 200;
+    cursor: pointer;
+}
+
+.mentor-float:hover { transform: scale(1.1); }
+
+.mentor-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(2,6,23,0.95);
+    z-index: 300;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.mentor-modal.active { display: flex; }
+
+.mentor-panel.alert { border-color: #ffd166; box-shadow: 0 0 35px rgba(255,209,102,0.4); }
+.mentor-panel.warning { border-color: #ff4d6d; box-shadow: 0 0 35px rgba(255,77,109,0.4); }
+.mentor-panel.impressed { border-color: #10b981; box-shadow: 0 0 35px rgba(16,185,129,0.4); }
+
+@media (max-width: 1050px) {
+    .mentor-panel { display: none; }
+}
+/* ====================== SENTINEL TOAST & MODAL ====================== */
+.mentor-toast {
+    position: fixed;
+    bottom: 100px;
+    right: 24px;
+    background: rgba(7,15,30,0.95);
+    border: 1px solid #00ffd5;
+    border-radius: 12px;
+    padding: 14px 18px;
+    width: 280px;
+    box-shadow: 0 10px 30px rgba(0,255,213,0.3);
+    transform: translateY(30px);
+    opacity: 0;
+    transition: all 0.4s ease;
+    z-index: 250;
+}
+
+.mentor-toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.mentor-toast.alert { border-color: #ffd166; }
+.mentor-toast.warning { border-color: #ff4d6d; }
+.mentor-toast.impressed { border-color: #10b981; }
+
+/* Floating button hover */
+#mentorFloat:hover {
+    transform: scale(1.12);
+}
+.mentor-toast {
+    position: fixed;
+    bottom: 110px;
+    right: 30px;
+    background: rgba(7,15,30,0.97);
+    border: 1px solid #00ffd5;
+    border-radius: 14px;
+    padding: 16px 20px;
+    width: 300px;
+    box-shadow: 0 15px 40px rgba(0,255,213,0.3);
+    transform: translateY(40px);
+    opacity: 0;
+    transition: all 0.4s ease;
+    z-index: 260;
+}
+
+.mentor-toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.mentor-toast.impressed { border-color: #10b981; }
+.mentor-toast.alert { border-color: #ffd166; }
+.mentor-toast.warning { border-color: #ff4d6d; }
+
+#mentorFloat:hover {
+    transform: scale(1.15) rotate(8deg);
+}
